@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In — DormDeals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-left">
+        <a href="index.html" class="auth-left-logo">DormDeals</a>
+        <div class="auth-left-content">
+            <h2>Good deals don't wait around.</h2>
+            <p>Log in and start finding dorm essentials for a fraction of what they cost new.</p>
+            <div class="auth-perks">
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                    </div>
+                    Visual search — just upload a photo
+                </div>
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    Campus-local deals within miles
+                </div>
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                    </div>
+                    Email alerts before deals disappear
+                </div>
+            </div>
+        </div>
+        <div class="auth-left-footer">Built by Ken Tran @ UMD</div>
+    </div>
+
+    <div class="auth-right">
+        <div class="auth-form-box">
+            <h1>Log in</h1>
+            <p class="auth-sub">Good deals move fast. Let's get you in.</p>
+
+            <div id="error-message" class="alert alert-error"></div>
+            <div id="success-message" class="alert alert-success"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@umd.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">Log in</button>
+            </form>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p style="font-size:0.88rem;color:var(--ink-2);">Logging in...</p>
+            </div>
+
+            <div class="form-footer">
+                No account? <a href="register.html">Sign up free</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

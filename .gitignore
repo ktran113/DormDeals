@@ -1,0 +1,25 @@
+# Secrets — never commit these
+.env
+*.env
+
+# Database — contains real user data
+*.db
+*.sqlite
+
+# Python
+.venv
+venv
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Claude
+CLAUDE.md
+doreamdeal-context.md

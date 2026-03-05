@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormDeals — Find Dorm Essentials for Less</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<nav class="landing-nav">
+    <a href="index.html" class="logo">DormDeals</a>
+    <div class="landing-nav-links">
+        <a href="login.html" class="nav-link">Log in</a>
+        <a href="register.html" class="btn btn-primary">Sign up</a>
+    </div>
+</nav>
+
+<div style="background: var(--surface); border-bottom: 1px solid var(--border);">
+    <section class="hero">
+        <span class="hero-eyebrow label">For students at UMD</span>
+        <h1 class="hero-headline">Stop overpaying<br>for things you only<br><em>use for one year.</em></h1>
+        <p class="hero-sub">Upload a photo of any dorm item. We'll find similar items on local marketplaces for cheaper and alert you before anyone else sees it.</p>
+        <div class="hero-actions">
+            <a href="register.html" class="btn btn-primary btn-lg">Sign up</a>
+            <a href="login.html" class="nav-link">Log in →</a>
+        </div>
+        <p class="hero-microcopy">Free forever · No spam · Local alerts</p>
+
+        <!-- Deal preview cards — real-looking results, not a UI mockup -->
+        <div class="hero-deal-row">
+            <div class="deal-preview-card">
+                <div class="deal-preview-thumb" style="background:#f5e6d3;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8441a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+                        <path d="M9 21h6M12 3a6 6 0 0 1 6 6c0 2.1-1.1 4-2.77 5.06A2 2 0 0 0 14 15.9V18h-4v-2.09a2 2 0 0 0-1.23-.84A6 6 0 0 1 6 9a6 6 0 0 1 6-6z"/>
+                    </svg>
+                </div>
+                <div class="deal-preview-body">
+                    <div class="deal-preview-name">Adjustable LED Desk Lamp</div>
+                    <div class="deal-preview-price">$9</div>
+                    <div class="deal-preview-meta">
+                        <span class="deal-preview-loc">Near College Park · 0.4 mi</span>
+                        <span class="urgency-badge">Pickup tonight</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="deal-preview-card">
+                <div class="deal-preview-thumb" style="background:#e6edf5;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1b3d2f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
+                        <rect x="2" y="7" width="20" height="14" rx="2"/>
+                        <path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 0-4 0v2"/>
+                    </svg>
+                </div>
+                <div class="deal-preview-body">
+                    <div class="deal-preview-name">Bedside Caddy Organizer</div>
+                    <div class="deal-preview-price">$14</div>
+                    <div class="deal-preview-meta">
+                        <span class="deal-preview-loc">Craigslist · 1.1 mi</span>
+                        <span class="matched-pill">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            Matched
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="deal-preview-card">
+                <div class="deal-preview-thumb" style="background:#e5f0ec;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2a5c44" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                </div>
+                <div class="deal-preview-body">
+                    <div class="deal-preview-name">6-Cube Wire Shelf Unit</div>
+                    <div class="deal-preview-price">$22</div>
+                    <div class="deal-preview-meta">
+                        <span class="deal-preview-loc">OfferUp · 0.8 mi</span>
+                        <span class="urgency-badge">3 viewing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="why-section">
+    <div class="why-inner">
+        <div>
+            <h2 class="why-headline">Visual search.<br>Not keywords.</h2>
+            <p class="why-sub">Most students don't know the product name. You shouldn't have to.</p>
+        </div>
+        <div class="why-features">
+            <div class="why-feature">
+                <div class="why-feature-num label">01</div>
+                <h3>Snap or upload</h3>
+                <p>Any photo works Amazon screenshot, Instagram find, or something you saw in a friend's room.</p>
+            </div>
+            <div class="why-feature">
+                <div class="why-feature-num label">02</div>
+                <h3>We scan nearby</h3>
+                <p>Our model finds visually similar listings on local marketplaces within a few miles of campus.</p>
+            </div>
+            <div class="why-feature">
+                <div class="why-feature-num label">03</div>
+                <h3>Get it first</h3>
+                <p>Email alert when a match is found. Good deals disappear in hours, you'll be the first.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="landing-footer">
+    <a href="index.html" class="logo">DormDeals</a>
+    <a href="register.html" class="btn btn-primary">Start saving →</a>
+    <p>Built by Ken Tran @ UMD</p>
+</footer>
+
+</body>
+</html>

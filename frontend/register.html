@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — DormDeals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-left">
+        <a href="index.html" class="auth-left-logo">DormDeals</a>
+        <div class="auth-left-content">
+            <h2>Furnish your dorm for less.</h2>
+            <p>Upload a photo of anything you need. We find the same thing, cheaper, within a mile of campus.</p>
+            <div class="auth-perks">
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                    </div>
+                    Visual search — no item name needed
+                </div>
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                            <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
+                    </div>
+                    Always sorted by price, cheapest first
+                </div>
+                <div class="auth-perk">
+                    <div class="auth-perk-icon icon-box">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    Free forever, no credit card
+                </div>
+            </div>
+        </div>
+        <div class="auth-left-footer">Built by Ken Tran @ UMD</div>
+    </div>
+
+    <div class="auth-right">
+        <div class="auth-form-box">
+            <h1>Create account</h1>
+            <p class="auth-sub">Start finding deals on dorm essentials today.</p>
+
+            <div id="error-message" class="alert alert-error"></div>
+            <div id="success-message" class="alert alert-success"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="name">Full name</label>
+                    <input type="text" id="name" name="name" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@umd.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="At least 6 characters" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">Start saving</button>
+            </form>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p style="font-size:0.88rem;color:var(--ink-2);">Creating your account...</p>
+            </div>
+
+            <div class="form-footer">
+                Already have an account? <a href="login.html">Log in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/register.js"></script>
+</body>
+</html>
