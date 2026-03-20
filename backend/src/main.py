@@ -136,7 +136,7 @@ def login(request: LoginRequest):
                 detail="Invalid email or password"
             )
 
-        # checks password
+        #checks password
         if not verify_password(request.password, user.password):
             raise HTTPException(
                 status_code=401,
