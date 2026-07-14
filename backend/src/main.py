@@ -1,4 +1,5 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Query
+from fastapi.concurrency import run_in_threadpool
 from typing import List, Optional
 import numpy as np
 import faiss
@@ -9,11 +10,12 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from sqlalchemy.orm import defer
 
 from auth import hash_password, verify_password, create_access_token, get_current_user_id
 from database import SessionLocal, init_db
 from models import User, Product
-from generate_embeddings import gen_embeddings
+from embeddings import gen_embeddings
 
 load_dotenv()
 app = FastAPI(
@@ -40,10 +42,10 @@ def startup():
     init_db()
     print("Database initialized!")
 
-    # CLIP is already loaded at module level by generate_embeddings
+    #CLIP is already loaded at module level by generate_embeddings
     print("CLIP model ready!")
 
-    # load FAISS index and id map
+    #load FAISS index and id map
     print("Loading FAISS index...")
     faiss_index = faiss.read_index(str(DATA_DIR / "products.index"))
     id_map = np.load(str(DATA_DIR / "id_map.npy"))
@@ -92,7 +94,7 @@ def register(request: RegisterRequest):
     #register new account
     db = SessionLocal()
     try:
-        # checks to see if email is already used
+        #checks for email use under existing user
         existing_user = db.query(User).filter(User.email == request.email).first()
         if existing_user:
             raise HTTPException(
@@ -110,7 +112,7 @@ def register(request: RegisterRequest):
         db.commit()
         db.refresh(new_user)
 
-        # creates JWT token
+        #creates JWT token
         access_token = create_access_token(data={"sub": str(new_user.id)})
 
         return AuthResponse(
@@ -122,9 +124,9 @@ def register(request: RegisterRequest):
     finally:
         db.close()
 
+#handles logging in
 @app.post("/login", response_model=AuthResponse)
 def login(request: LoginRequest):
-    #handles logging in needs email and password
     db = SessionLocal()
     try:
         #identifies user using email
@@ -143,7 +145,7 @@ def login(request: LoginRequest):
                 detail="Invalid email or password"
             )
 
-        # create JWT token
+        #create JWT token
         access_token = create_access_token(data={"sub": str(user.id)})
 
         return AuthResponse(
@@ -156,24 +158,38 @@ def login(request: LoginRequest):
         db.close()
 
 @app.post("/search", response_model=List[ProductResult])
-async def search(file: UploadFile = File(...), k = 5):
-    # open uploaded image
+async def search(file: UploadFile = File(...), k: int = Query(5, ge=1, le=50)):
+    #open uploaded image
     contents = await file.read()
     img = Image.open(BytesIO(contents)).convert("RGB")
 
-    #generate query embedding
-    #search FAISS
-    #map FAISS positions to product DB ids
-    query = gen_embeddings(img)[np.newaxis, :]
+    # generate query embedding
+    # search FAISS
+    # map FAISS positions to product DB ids
+    # CLIP inference is CPU-heavy; run it off the event loop so other requests aren't blocked
+    embedding = await run_in_threadpool(gen_embeddings, img)
+    query = embedding[np.newaxis, :]
     scores, positions = faiss_index.search(query, k=k)
-    product_ids = [int(id_map[pos]) for pos in positions[0]]
+
+    #FAISS pads positions with -1 when it can't fill k results
+    ranked = [(int(id_map[pos]), float(scores[0][i]))
+              for i, pos in enumerate(positions[0]) if pos != -1]
+    product_ids = [pid for pid, _ in ranked]
 
     #fetch products from DB and build response
     db = SessionLocal()
     try:
+        #one IN query instead of k queries; defer skips the unused embedding blob
+        rows = db.query(Product)\
+            .options(defer(Product.embedding))\
+            .filter(Product.id.in_(product_ids))\
+            .all()
+        #IN returns rows in arbitrary order — restore FAISS rank order
+        by_id = {p.id: p for p in rows}
+
         results = []
-        for i, pid in enumerate(product_ids):
-            product = db.query(Product).filter(Product.id == pid).first()
+        for pid, score in ranked:
+            product = by_id.get(pid)
             if product:
                 results.append(ProductResult(
                     id = product.id,
@@ -181,7 +197,7 @@ async def search(file: UploadFile = File(...), k = 5):
                     price = product.price,
                     image_url = product.image_url,
                     category = product.category,
-                    score = float(scores[0][i])
+                    score = score
                 ))
         return results
     finally:

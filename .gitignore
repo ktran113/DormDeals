@@ -6,6 +6,9 @@
 *.db
 *.sqlite
 
+# Generated artifacts (FAISS index, id map, download cache)
+backend/data/
+
 # Python
 .venv
 venv
@@ -22,4 +25,4 @@ __pycache__/
 
 # Claude
 CLAUDE.md
-doreamdeal-context.md
+dormdeal-context.md

@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from pathlib import Path
 from models import Base
 
-#creates a file called dorm_deals.db in the current directory
-DATABASE_URL = "sqlite:///./dorm_deals.db"
+#DB lives in backend/data/ with the other generated artifacts, anchored to this file so CWD doesn't matter
+DATABASE_URL = f"sqlite:///{Path(__file__).parent.parent / 'data' / 'dorm_deals.db'}"
 
 #need check_same_thread=False to work with FastAPI
 engine = create_engine(

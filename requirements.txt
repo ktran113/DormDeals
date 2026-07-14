@@ -1,0 +1,25 @@
+# API
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+python-multipart  # required by FastAPI for multipart file uploads (/search)
+
+# Database
+sqlalchemy
+
+# Auth
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==4.0.1  # passlib 1.7.4 breaks with bcrypt >= 4.1 (ValueError on hash)
+
+# ML / Embeddings
+datasets
+transformers==5.0.0  # gen_embeddings relies on v5 get_image_features return type
+torch
+Pillow
+numpy
+faiss-cpu  # NOTE: on macOS, torch + faiss-cpu each bundle libomp; see README/CLAUDE.md
+
+# HTTP
+requests
