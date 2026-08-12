@@ -23,5 +23,8 @@ class Product(Base):
     price = Column(Float, nullable=True)
     image_url = Column(String)
     local_image_path = Column(String)  # img path
+    #the listing's non-MAIN images, JSON [{"variant": "PT01", "url": ...}].
+    #never embedded, so these are held-out eval queries with a known answer
+    alt_image_urls = Column(Text, nullable=True)
     embedding = Column(LargeBinary, nullable=True)  # clip embedding (bytes)
     created_at = Column(DateTime, default=datetime.utcnow)

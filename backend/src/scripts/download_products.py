@@ -116,12 +116,13 @@ KEYWORDS = [
 
 # Categories to search - using HuggingFace raw files
 BASE_URL = "https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023/resolve/main/raw/meta_categories"
+#no "Furniture" category exists in this dataset (meta_Furniture.jsonl 404s);
+#furniture items are reached via KEYWORDS against Home_and_Kitchen / Office_Products
 CATEGORIES = [
     "Electronics",
     "Home_and_Kitchen",
     "Office_Products",
     "Appliances",
-    "Furniture",
     "Video_Games",
     "Tools_and_Home_Improvement",
 ]
