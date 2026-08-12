@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Query
+from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from typing import List, Optional
 import numpy as np
@@ -6,18 +6,15 @@ import faiss
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
-import os
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 from pydantic import BaseModel
 from sqlalchemy.orm import defer
 
-from auth import hash_password, verify_password, create_access_token, get_current_user_id
+from auth import hash_password, verify_password, create_access_token
 from database import SessionLocal, init_db
 from models import User, Product
 from embeddings import gen_embeddings
 
-load_dotenv()
 app = FastAPI(
     title = "DormDeals",
     version = "0.1.0"
@@ -42,7 +39,7 @@ def startup():
     init_db()
     print("Database initialized!")
 
-    #CLIP is already loaded at module level by generate_embeddings
+    #CLIP is already loaded at module level by embeddings
     print("CLIP model ready!")
 
     #load FAISS index and id map
@@ -52,15 +49,6 @@ def startup():
     print(f"FAISS index loaded ({faiss_index.ntotal} vectors)")
 
 #response models
-class UserResponse(BaseModel):
-    id: int
-    email: str
-    name: str
-    created_at: str
-
-    class Config:
-        from_attributes = True
-
 class RegisterRequest(BaseModel):
     email: str
     password: str
@@ -163,9 +151,6 @@ async def search(file: UploadFile = File(...), k: int = Query(5, ge=1, le=50)):
     contents = await file.read()
     img = Image.open(BytesIO(contents)).convert("RGB")
 
-    # generate query embedding
-    # search FAISS
-    # map FAISS positions to product DB ids
     # CLIP inference is CPU-heavy; run it off the event loop so other requests aren't blocked
     embedding = await run_in_threadpool(gen_embeddings, img)
     query = embedding[np.newaxis, :]
