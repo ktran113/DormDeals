@@ -1,0 +1,28 @@
+# HuggingFace Spaces (Docker SDK), free CPU tier.
+# Expects backend/data/ to contain products.index, id_map.npy and a slimmed
+# dorm_deals.db — see deploy/slim_db.py.
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# CPU-only torch keeps the image a few GB smaller than the default CUDA wheels
+COPY requirements.txt .
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt
+
+# bake the CLIP weights into the image so cold starts don't wait on a download
+RUN python -c "from transformers import CLIPModel, CLIPProcessor; \
+    CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); \
+    CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
+
+COPY backend/ backend/
+COPY frontend/ frontend/
+
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app/backend/src
+EXPOSE 7860
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]

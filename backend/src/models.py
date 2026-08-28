@@ -27,4 +27,6 @@ class Product(Base):
     #never embedded, so these are held-out eval queries with a known answer
     alt_image_urls = Column(Text, nullable=True)
     embedding = Column(LargeBinary, nullable=True)  # clip embedding (bytes)
+    #second encoder, for the CLIP vs SigLIP comparison; 768-dim
+    embedding_siglip = Column(LargeBinary, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
