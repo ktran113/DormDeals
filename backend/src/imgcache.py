@@ -22,6 +22,9 @@ CACHE_DIR = Path(__file__).parent.parent / "data" / "img_cache"
 #when throttling, so a slow read is normal and a slow connect is a dead host
 TIMEOUT = (5, 25)
 
+#comfortably above the 224px both CLIP and SigLIP consume
+MAX_EDGE = 384
+
 
 def _path(url: str) -> Path:
     h = hashlib.sha256(url.encode()).hexdigest()
@@ -51,7 +54,11 @@ def fetch(url: str, retries: int = 2):
         p.parent.mkdir(parents=True, exist_ok=True)
         tmp = p.with_suffix(".tmp")
         try:
-            img.save(tmp, format="JPEG", quality=92)
+            #both encoders resize to 224px, so storing originals would burn
+            #gigabytes for detail that is thrown away on load
+            cached = img.copy()
+            cached.thumbnail((MAX_EDGE, MAX_EDGE))
+            cached.save(tmp, format="JPEG", quality=92)
             tmp.replace(p)  #atomic, so a killed run never leaves a partial file
         except Exception:
             tmp.unlink(missing_ok=True)
