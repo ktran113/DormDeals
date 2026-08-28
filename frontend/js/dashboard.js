@@ -1,7 +1,8 @@
 const API_URL = "";
 
+//search is open to anyone so the demo works without an account; the token is
+//sent when present so logged-in requests still carry it
 const token = localStorage.getItem('token');
-//if (!token) window.location.href = 'login.html';
 
 // Populate sidebar user info
 const userName  = localStorage.getItem('userName')  || 'User';
@@ -92,7 +93,7 @@ searchBtn.addEventListener('click', async function () {
     try {
         const response = await fetch(`${API_URL}/search`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             body: formData
         });
 
@@ -100,7 +101,8 @@ searchBtn.addEventListener('click', async function () {
 
         const data = await response.json();
         if (response.ok) {
-            showResults(data.results || []);
+            //  /search returns a bare array, not {results: [...]}
+            showResults(data);
         } else {
             hideSkeleton();
             alert(data.detail || 'Search failed. Please try again.');
@@ -129,12 +131,11 @@ function showResults(results) {
                 <div class="result-info">
                     <h4>${item.title || 'Similar Item'}</h4>
                     <div class="result-price">${item.price ? '$' + item.price : 'Price unlisted'}</div>
-                    <div class="result-source">${item.source || 'Local Marketplace'}</div>
+                    <div class="result-source">${item.category ? item.category.replace(/_/g, ' ') : ''}</div>
                     <span class="matched-pill">
                         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                        Matched by photo
+                        ${(item.score * 100).toFixed(1)}% match
                     </span>
-                    ${item.url ? `<br><a href="${item.url}" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:0.8rem;padding:6px 12px;margin-top:8px;display:inline-block;">View listing</a>` : ''}
                 </div>
             `;
             grid.appendChild(card);
