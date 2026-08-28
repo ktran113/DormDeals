@@ -7,6 +7,7 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import defer
 
@@ -28,6 +29,7 @@ app.add_middleware(
 )
 
 DATA_DIR = Path(__file__).parent.parent / "data"
+FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend"
 
 faiss_index = None
 id_map = None
@@ -73,9 +75,9 @@ class ProductResult(BaseModel):
     score: float
 
 #endpoints!!!
-@app.get("/")
-def root():
-    return {"message": "API is running"}
+@app.get("/health")
+def health():
+    return {"status": "ok", "indexed": int(faiss_index.ntotal) if faiss_index else 0}
 
 @app.post("/register", response_model=AuthResponse)
 def register(request: RegisterRequest):
@@ -187,3 +189,9 @@ async def search(file: UploadFile = File(...), k: int = Query(5, ge=1, le=50)):
         return results
     finally:
         db.close()
+
+
+#serve the frontend from the same origin as the API — dashboard.js uses a
+#relative API_URL, so a separate static server can't reach /search at all.
+#Registered last: routes declared above take precedence over the mount.
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
