@@ -3,6 +3,7 @@ from fastapi.concurrency import run_in_threadpool
 from typing import List, Optional
 import numpy as np
 import faiss
+import torch
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
@@ -27,6 +28,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+#One inference thread per request, parallelism across requests rather than
+#inside them. torch defaults to 4 intra-op threads on this box; combined with
+#run_in_threadpool that is up to 4x the concurrency in compute threads, which
+#at 16 concurrent requests thrashes 8 cores and sent p95 to 7.8s — worse than
+#doing the work inline. Serving wants many small inferences, not few wide ones.
+torch.set_num_threads(1)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend"
