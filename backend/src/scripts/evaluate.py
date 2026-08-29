@@ -77,17 +77,18 @@ def load_encoder(name):
     if name == "clip":
         return gen_embeddings
 
-    from transformers import AutoModel, AutoProcessor
+    #vision tower only — AutoProcessor would require SigLIP's SentencePiece
+    #tokenizer, and only image features are ever computed
+    from transformers import AutoImageProcessor, SiglipVisionModel
     print(f"Loading {SIGLIP_ID}...")
-    m = AutoModel.from_pretrained(SIGLIP_ID)
-    proc = AutoProcessor.from_pretrained(SIGLIP_ID)
+    m = SiglipVisionModel.from_pretrained(SIGLIP_ID)
+    proc = AutoImageProcessor.from_pretrained(SIGLIP_ID)
     m.eval()
 
     def embed(images):
         with torch.no_grad():
-            out = m.get_image_features(**proc(images=images, return_tensors="pt"))
-        feats = getattr(out, "pooler_output", out)
-        return torch.nn.functional.normalize(feats, p=2, dim=1).numpy()
+            out = m(**proc(images=images, return_tensors="pt"))
+        return torch.nn.functional.normalize(out.pooler_output, p=2, dim=1).numpy()
 
     return embed
 

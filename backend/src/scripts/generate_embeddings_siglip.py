@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))  #allow flat imports from 
 
 import torch
 from sqlalchemy import text
-from transformers import AutoModel, AutoProcessor
+from transformers import AutoImageProcessor, SiglipVisionModel
 
 from database import SessionLocal, engine
 from imgcache import fetch
@@ -29,9 +29,12 @@ MODEL_ID = "google/siglip-base-patch16-224"
 BATCH = 32
 FETCH_WORKERS = 24
 
+#vision tower only: AutoProcessor would drag in SigLIP's SentencePiece
+#tokenizer, which this project has no dependency on and does not need — only
+#image features are ever computed
 print(f"Loading {MODEL_ID}...")
-model = AutoModel.from_pretrained(MODEL_ID)
-processor = AutoProcessor.from_pretrained(MODEL_ID)
+model = SiglipVisionModel.from_pretrained(MODEL_ID)
+processor = AutoImageProcessor.from_pretrained(MODEL_ID)
 model.eval()
 
 
@@ -48,12 +51,8 @@ def ensure_column():
 
 def embed(images):
     with torch.no_grad():
-        inputs = processor(images=images, return_tensors="pt")
-        out = model.get_image_features(**inputs)
-    #transformers returns a bare tensor for some encoders and an output object
-    #for others; normalise to a tensor either way
-    feats = getattr(out, "pooler_output", out)
-    return torch.nn.functional.normalize(feats, p=2, dim=1).numpy()
+        out = model(**processor(images=images, return_tensors="pt"))
+    return torch.nn.functional.normalize(out.pooler_output, p=2, dim=1).numpy()
 
 
 def main():
