@@ -23,7 +23,7 @@ from fastapi import FastAPI, File, Query, UploadFile
 from PIL import Image
 from pydantic import BaseModel
 
-from database import SessionLocal
+from database import SessionLocal, init_db
 from embeddings import gen_embeddings
 from models import Product
 
@@ -38,6 +38,7 @@ id_map = None
 @app.on_event("startup")
 def startup():
     global faiss_index, id_map
+    init_db()
     faiss_index = faiss.read_index(str(DATA_DIR / "products.index"))
     id_map = np.load(str(DATA_DIR / "id_map.npy"))
     print(f"FAISS index loaded ({faiss_index.ntotal} vectors)")
