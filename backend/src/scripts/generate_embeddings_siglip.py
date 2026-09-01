@@ -26,8 +26,11 @@ from imgcache import fetch
 from models import Product
 
 MODEL_ID = "google/siglip-base-patch16-224"
-BATCH = 32
-FETCH_WORKERS = 24
+BATCH = 48
+#Inference runs ~14 img/s; the CDN is the whole cost. Widening to 64 workers
+#bought a 1.6 img/s burst that collapsed to 0.08 img/s within the hour, so the
+#limiter punishes bursts. Modest and sustained beats wide and throttled.
+FETCH_WORKERS = 48
 
 #vision tower only: AutoProcessor would drag in SigLIP's SentencePiece
 #tokenizer, which this project has no dependency on and does not need — only

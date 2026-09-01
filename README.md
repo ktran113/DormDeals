@@ -100,6 +100,42 @@ Two filters keep the measurement honest:
 Queries are sampled one per product, so no product contributes twice and the
 trials stay independent.
 
+## Encoder comparison: CLIP vs SigLIP
+
+The catalog was embedded a second time with SigLIP and scored on the identical
+query set — same sample, same seed, same filters. Filtering and the
+near-duplicate guard always run on CLIP precisely so that swapping the
+retrieval encoder cannot change which queries are in the eval set; both runs
+report the same n, the same 1,582 graphics dropped and the same 51
+near-duplicates, which confirms it held.
+
+| metric | CLIP ViT-B/32 | SigLIP base/16 | change |
+|---|---|---|---|
+| recall@1 | 0.221 | **0.522** | +30.1 pts |
+| recall@5 | 0.327 | **0.690** | +36.3 pts |
+| recall@10 | 0.380 | **0.740** | +36.0 pts |
+| MRR | 0.269 | **0.594** | +32.5 pts |
+| same-type item in top 5 | 0.610 | **0.866** | +25.6 pts |
+| mean same-type fraction | 0.251 | **0.451** | +20.0 pts |
+
+SigLIP more than doubles recall@5. A jump that size deserves a leakage check,
+since the guard measures self-similarity in CLIP space and a query could in
+principle be a near-copy in SigLIP space without being one in CLIP space. On a
+250-query sample, SigLIP self-similarity against the indexed image peaks at
+0.976 and **no query exceeds the 0.98 threshold**, so nothing slipped through.
+
+It is not free. SigLIP base/16 reads 196 patches per image against CLIP
+ViT-B/32's 49, roughly 4x the per-image compute, and its 768-dim vectors make
+the index 50% larger. The served endpoint still runs CLIP: the latency figures
+below were measured on it, and adopting SigLIP would trade measured latency for
+measured accuracy rather than being a free upgrade.
+
+Two caveats. The SigLIP index holds 14,873 vectors against CLIP's 14,877,
+because four product images failed to fetch during embedding; if one of those
+four is a query's answer it is an automatic miss for SigLIP, which at 0.03% of
+the catalog cannot move the result. And both encoders are frozen — neither was
+fine-tuned on this catalog.
+
 ## Latency
 
 `/search` measured against the endpoint as it stood before optimisation, which
