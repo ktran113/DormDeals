@@ -6,20 +6,20 @@ Servers were benchmarked sequentially on the same machine, never concurrently, s
 
 | concurrency | build | p50 (ms) | p95 (ms) | p99 (ms) | req/s |
 |---|---|---|---|---|---|
-| 1 | baseline | 64 | 72 | 86 | 15.5 |
-| 1 | current | 60 | 66 | 70 | 16.5 |
-| 4 | baseline | 256 | 262 | 266 | 15.6 |
-| 4 | current | 146 | 199 | 226 | 27.0 |
-| 8 | baseline | 524 | 603 | 647 | 15.1 |
-| 8 | current | 283 | 416 | 452 | 27.3 |
-| 16 | baseline | 1240 | 1887 | 2132 | 12.3 |
-| 16 | current | 567 | 759 | 821 | 27.6 |
+| 1 | baseline | 112 | 124 | 146 | 8.8 |
+| 1 | current | 134 | 145 | 156 | 7.4 |
+| 4 | baseline | 459 | 738 | 934 | 7.9 |
+| 4 | current | 262 | 434 | 490 | 14.3 |
+| 8 | baseline | 920 | 1002 | 1117 | 8.6 |
+| 8 | current | 488 | 682 | 778 | 16.1 |
+| 16 | baseline | 1873 | 3462 | 3891 | 7.5 |
+| 16 | current | 982 | 1231 | 1325 | 15.9 |
 
 ## p95 improvement
 
 | concurrency | baseline p95 | current p95 | reduction |
 |---|---|---|---|
-| 1 | 72 ms | 66 ms | 8% |
-| 4 | 262 ms | 199 ms | 24% |
-| 8 | 603 ms | 416 ms | 31% |
-| 16 | 1887 ms | 759 ms | 60% |
+| 1 | 124 ms | 145 ms | -17% |
+| 4 | 738 ms | 434 ms | 41% |
+| 8 | 1002 ms | 682 ms | 32% |
+| 16 | 3462 ms | 1231 ms | 64% |

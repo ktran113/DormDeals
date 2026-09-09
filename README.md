@@ -1,21 +1,25 @@
 # DormDeals
 
 Visual search for dorm essentials. Upload a photo of any item and get visually
-similar products from a catalog of 14,877 searchable items, ranked by CLIP
+similar products from a catalog of 14,873 searchable items, ranked by SigLIP
 embedding similarity.
 
 ![DormDeals search results](docs/demo.png)
 
 *A real query. The leftmost image is a held-out listing photo the index never
 saw; the five to its right are what came back, with cosine scores. Rank 1 is
-the correct product. Ranks 2-5 show the characteristic failure: CLIP matches
-shape and colour, so a yellow alarm clock and a mouse jiggler score highly
-against a yellow avocado case.*
+the correct product at 0.924, and all five results are AirPods cases.*
+
+*The same query under CLIP returned the correct product at 0.770 followed by a
+kids' alarm clock, a mouse jiggler and a pack of animal-topped gel pens — items
+matched on colour and silhouette rather than on what they are. That difference
+is what the same-type rate below measures: 0.610 for CLIP against 0.866 for
+SigLIP.*
 
 ## How it works
 
-Products are embedded once, offline, into a 512-dimension CLIP space and stored
-as raw bytes on the product row. A FAISS index is built from those bytes as a
+Products are embedded once, offline, into a 768-dimension SigLIP space and
+stored as raw bytes on the product row. A FAISS index is built from those bytes as a
 derived artifact, so the database stays the single source of truth. At query
 time the uploaded photo goes through the exact same encoder, and an
 inner-product search over L2-normalised vectors gives cosine similarity.
@@ -25,14 +29,14 @@ flowchart LR
     subgraph offline["Offline pipeline"]
         A["Amazon Reviews 2023<br/>metadata stream"] --> B["download_products.py<br/>keyword + category filter"]
         B --> C[("SQLite<br/>products")]
-        C --> D["generate_embeddings.py<br/>CLIP ViT-B/32"]
+        C --> D["embedding<br/>SigLIP base/16"]
         D --> C
         C --> E["build_index.py"]
-        E --> F[("FAISS IndexFlatIP<br/>14,877 x 512")]
+        E --> F[("FAISS IndexFlatIP<br/>14,873 x 768")]
     end
     subgraph online["Request path"]
         G["Browser<br/>photo upload"] -->|"POST /search"| H["FastAPI"]
-        H --> I["CLIP embed<br/>(threadpool)"]
+        H --> I["SigLIP embed<br/>(threadpool)"]
         I --> F
         F -->|"top-k positions"| J["id_map.npy<br/>position to product id"]
         J --> C
@@ -124,11 +128,14 @@ principle be a near-copy in SigLIP space without being one in CLIP space. On a
 250-query sample, SigLIP self-similarity against the indexed image peaks at
 0.976 and **no query exceeds the 0.98 threshold**, so nothing slipped through.
 
-It is not free. SigLIP base/16 reads 196 patches per image against CLIP
-ViT-B/32's 49, roughly 4x the per-image compute, and its 768-dim vectors make
-the index 50% larger. The served endpoint still runs CLIP: the latency figures
-below were measured on it, and adopting SigLIP would trade measured latency for
-measured accuracy rather than being a free upgrade.
+**SigLIP now serves `/search`.** It is not free: SigLIP base/16 reads 196
+patches per image against CLIP ViT-B/32's 49, roughly 4x the per-image compute,
+and its 768-dim vectors make the index 50% larger. End-to-end p50 at one
+request went from 60 ms to 134 ms, and peak throughput from ~27 req/s to ~16.
+The accuracy is worth it here — this is a search engine, and returning the
+right product twice as often matters more than 70 ms — but it is a trade, not
+an upgrade. The latency table below was re-measured after the swap, with both
+builds running SigLIP so the comparison still isolates the endpoint change.
 
 Two caveats. The SigLIP index holds 14,873 vectors against CLIP's 14,877,
 because four product images failed to fetch during embedding; if one of those
@@ -145,21 +152,27 @@ level, so they never competed for cores.
 
 | concurrency | baseline p95 | current p95 | baseline req/s | current req/s |
 |---|---|---|---|---|
-| 1 | 72 ms | 66 ms | 15.5 | 16.5 |
-| 4 | 262 ms | 199 ms | 15.6 | 27.0 |
-| 8 | 603 ms | 416 ms | 15.1 | 27.3 |
-| 16 | 1887 ms | **759 ms** | 12.3 | **27.6** |
+| 1 | 124 ms | 145 ms | 8.8 | 7.4 |
+| 4 | 738 ms | 434 ms | 7.9 | 14.3 |
+| 8 | 1002 ms | 682 ms | 8.6 | 16.1 |
+| 16 | 3462 ms | **1231 ms** | 7.5 | **15.9** |
+
+At one concurrent request the optimized build is **17% slower**, and that is
+the honest cost of pinning inference to a single thread: one request can no
+longer spread across four cores. From four concurrent requests upward it wins
+by 32-64%, and throughput roughly doubles. A server is judged on the second
+case, so the trade is deliberate — but it is a trade.
 
 The throughput column is the clearer signal. Baseline throughput is flat at
-~15 req/s however many clients arrive, because a CPU-bound forward pass on the
+~8 req/s however many clients arrive, because a CPU-bound forward pass on the
 event loop serialises everything behind it — additional concurrency buys
 nothing and only lengthens the queue. Moving inference to a threadpool lets
-throughput scale to ~27 req/s and hold, and the p95 gap widens monotonically
-with load: 8%, 24%, 31%, 60%.
+throughput scale to ~16 req/s and hold, and the p95 gap widens monotonically
+with load: -17%, 41%, 32%, 64%.
 
 **Sweeping concurrency mattered.** An earlier version of the fix looked good at
 one request and was 4.5x *worse* at sixteen — p95 of 7.8s against the
-baseline's 1.7s. torch defaults to 4 intra-op threads here, so sixteen
+baseline's. torch defaults to 4 intra-op threads here, so sixteen
 concurrent inferences in a threadpool put up to 64 compute threads on 8 cores
 and the machine thrashed. Pinning inference to one thread per request, so
 parallelism happens across requests rather than inside them, produced the table

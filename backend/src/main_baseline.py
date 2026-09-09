@@ -10,6 +10,10 @@ Two deliberate flaws are preserved:
      blocks the asyncio event loop and no other request can even be parsed.
   2. one DB query per result (N+1), each loading the embedding blob it discards.
 
+It uses the same encoder and index as the current build on purpose. The
+benchmark must vary the endpoint implementation alone — running CLIP here and
+SigLIP there would conflate the model swap with the concurrency fix.
+
 Served by bench_latency.py; not part of the application.
 """
 
@@ -24,7 +28,7 @@ from PIL import Image
 from pydantic import BaseModel
 
 from database import SessionLocal, init_db
-from embeddings import gen_embeddings
+from embeddings_siglip import gen_embeddings
 from models import Product
 
 app = FastAPI(title="DormDeals (pre-optimisation baseline)")
@@ -39,8 +43,8 @@ id_map = None
 def startup():
     global faiss_index, id_map
     init_db()
-    faiss_index = faiss.read_index(str(DATA_DIR / "products.index"))
-    id_map = np.load(str(DATA_DIR / "id_map.npy"))
+    faiss_index = faiss.read_index(str(DATA_DIR / "products_siglip.index"))
+    id_map = np.load(str(DATA_DIR / "id_map_siglip.npy"))
     print(f"FAISS index loaded ({faiss_index.ntotal} vectors)")
 
 

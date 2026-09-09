@@ -18,7 +18,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from database import SessionLocal
-from embeddings import gen_embeddings
+from embeddings_siglip import gen_embeddings
 from imgcache import fetch
 from models import Product
 
@@ -42,11 +42,11 @@ def tile(img, label, accent=(40, 40, 40)):
 
 
 def main():
-    index = faiss.read_index(str(DATA_DIR / "products.index"))
-    id_map = np.load(str(DATA_DIR / "id_map.npy"))
+    index = faiss.read_index(str(DATA_DIR / "products_siglip.index"))
+    id_map = np.load(str(DATA_DIR / "id_map_siglip.npy"))
 
     #reuse a query the eval already scored, so the figure matches the numbers
-    run = json.loads((DATA_DIR / "eval_clip.json").read_text())
+    run = json.loads((DATA_DIR / "eval_siglip.json").read_text())
     hit = next(r for r in run["records"] if r["rank"] == 1 and r["self_sim"] < 0.9)
 
     query_img = fetch(hit["url"])

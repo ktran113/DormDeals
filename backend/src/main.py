@@ -15,7 +15,7 @@ from sqlalchemy.orm import defer
 from auth import hash_password, verify_password, create_access_token
 from database import SessionLocal, init_db
 from models import User, Product
-from embeddings import gen_embeddings
+from embeddings_siglip import gen_embeddings
 
 app = FastAPI(
     title = "DormDeals",
@@ -49,13 +49,13 @@ def startup():
     init_db()
     print("Database initialized!")
 
-    #CLIP is already loaded at module level by embeddings
-    print("CLIP model ready!")
+    #SigLIP is already loaded at module level by embeddings_siglip
+    print("SigLIP model ready!")
 
     #load FAISS index and id map
     print("Loading FAISS index...")
-    faiss_index = faiss.read_index(str(DATA_DIR / "products.index"))
-    id_map = np.load(str(DATA_DIR / "id_map.npy"))
+    faiss_index = faiss.read_index(str(DATA_DIR / "products_siglip.index"))
+    id_map = np.load(str(DATA_DIR / "id_map_siglip.npy"))
     print(f"FAISS index loaded ({faiss_index.ntotal} vectors)")
 
 #response models
@@ -161,7 +161,7 @@ async def search(file: UploadFile = File(...), k: int = Query(5, ge=1, le=50)):
     contents = await file.read()
     img = Image.open(BytesIO(contents)).convert("RGB")
 
-    # CLIP inference is CPU-heavy; run it off the event loop so other requests aren't blocked
+    # encoder inference is CPU-heavy; run it off the event loop so other requests aren't blocked
     embedding = await run_in_threadpool(gen_embeddings, img)
     query = embedding[np.newaxis, :]
     scores, positions = faiss_index.search(query, k=k)
