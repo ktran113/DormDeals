@@ -1,5 +1,3 @@
-const API_URL = "";
-
 //search is open to anyone so the demo works without an account; the token is
 //sent when present so logged-in requests still carry it
 const token = localStorage.getItem('token');

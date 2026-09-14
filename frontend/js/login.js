@@ -1,5 +1,3 @@
-const API_URL = "";
-
 const form = document.getElementById('register-form');
 const errorDiv = document.getElementById('error-message');
 const successDiv = document.getElementById('success-message');
