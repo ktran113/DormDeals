@@ -1,4 +1,5 @@
-# HuggingFace Spaces (Docker SDK), free CPU tier.
+# Google Cloud Run. Build remotely with `gcloud run deploy --source .` —
+# no local Docker needed. See deploy/CLOUD_RUN.md.
 # Expects backend/data/ to contain products_siglip.index, id_map_siglip.npy and
 # a slimmed dorm_deals.db — see deploy/slim_db.py.
 FROM python:3.11-slim
@@ -26,5 +27,8 @@ COPY frontend/ frontend/
 
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app/backend/src
-EXPOSE 7860
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+
+# Cloud Run injects PORT and ignores EXPOSE. Shell form so the variable expands;
+# exec so uvicorn is PID 1 and receives SIGTERM on scale-down.
+EXPOSE 8080
+CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}

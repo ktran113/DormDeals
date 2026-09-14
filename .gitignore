@@ -27,5 +27,5 @@ __pycache__/
 CLAUDE.md
 dormdeal-context.md
 
-# assembled HuggingFace Space (regenerate with deploy/prepare_space.py)
-deploy/space/
+# assembled deploy bundle (regenerate with deploy/prepare_deploy.py)
+deploy/bundle/
